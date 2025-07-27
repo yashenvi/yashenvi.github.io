@@ -13,7 +13,7 @@ function slowScrollTo(targetY, duration = 1200) {
         const elapsed = currentTime - startTime;
         const percent = Math.min(elapsed / duration, 1);
 
-        const eased = easeInOutCubic(percent);
+        const eased = easeInOutQuint(percent);
         window.scrollTo(0, startY + diff * eased);
 
         if (percent < 1) {
@@ -28,7 +28,7 @@ function slowScrollTo(targetY, duration = 1200) {
 // Scroll snap control for PC (desktop only)
 if (window.innerWidth > 700) {
     let lastScrollTime = 0;
-    const SCROLL_DELAY = 1300; // ms, slightly more
+    const SCROLL_DELAY = 1400; // ms, slightly more
 
     window.addEventListener('wheel', function(e) {
         const now = Date.now();
@@ -57,7 +57,8 @@ if (window.innerWidth > 700) {
         e.preventDefault(); // stop default browser scroll
         lastScrollTime = now;
 
-        slowScrollTo(sections[nextIndex].offsetTop - 80, 1000);
+        slowScrollTo(sections[nextIndex].offsetTop - 80, 1380); //  seconds
+
     }, { passive: false });
 }
 function easeInOutCubic(t) {
@@ -67,3 +68,8 @@ function easeInOutCubic(t) {
 }
 const SCROLL_DELAY = 1300; // ms, slightly more
 
+function easeInOutQuint(t) {
+    return t < 0.5
+        ? 16 * t * t * t * t * t
+        : 1 - Math.pow(-2 * t + 2, 5) / 2;
+}
