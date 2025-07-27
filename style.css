@@ -1,7 +1,6 @@
 html, body {
     height: 100%;
-    scroll-behavior: smooth;
-    scroll-snap-type: y mandatory;
+    scroll-behavior: auto; /* We'll handle smoothness with JS */
 }
 
 body {
@@ -81,6 +80,9 @@ body {
 
 /* Responsive: hide menu links on small screens, show only when menu is open */
 @media (max-width: 700px) {
+    html, body {
+        scroll-snap-type: y mandatory;
+    }
     .header-menu {
         display: flex;
         flex-direction: column;
@@ -114,6 +116,9 @@ body {
     }
 }
 @media (min-width: 701px) {
+    html, body {
+        scroll-snap-type: y proximity;
+    }
     .menu-btn {
         display: block;
         margin-right: 0;
