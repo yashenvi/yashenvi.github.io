@@ -124,6 +124,16 @@ body {
         display: block;
         margin-right: 0px;
     }
+    .section-object {
+    width: 70%;       /* larger relative size */
+    right: 50%;       /* center horizontally */
+    transform: translateX(50%); /* center adjustment */
+    bottom: 0;        /* keep at bottom */
+   }
+
+   .section-content {
+    padding: 0 1rem;
+   }
 }
 
 /* DESKTOP: Slide-left menu */
@@ -194,25 +204,20 @@ main {
 }
 
 .page-section {
-    
-}
-.page-section {
-  position: relative; /* ensures content sits above canvas */
-  z-index: 1;  
-  height: calc(100vh - 72px); /* subtract header height */
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;/* full viewport minus header */
-  scroll-snap-align: start;
-  padding: 0 2rem;
-  box-sizing: border-box;
-  color: #fff; /* default text color on image */
-  text-shadow: 0 0 5px rgba(0,0,0,0.5); /* optional for readability */
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover; /* scales to cover whole section */
+    position: relative; /* ensures content sits above canvas */
+    z-index: 1;  
+    scroll-snap-align: start;
+    height: calc(100vh - 72px); /* subtract header height */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 0 2rem;
+    background: #f5f5f5; /* or any background color */
+    overflow: hidden; /* so objects don’t overflow */
 }
 
 
@@ -265,22 +270,55 @@ main {
     height: 100vh;
 }
 
-#intro {
-  background-image: url('/images/intro.jpg');
+.section-object {
+  position: absolute;
+  width: 40%;
+  max-width: 400px;
+  z-index: 0;
+  transition: transform 0.3s; /* optional smooth scroll movement */
 }
 
-#portfolio1 {
-  background-image: url('/images/portfolio1.jpg');
+.section-content {
+  position: relative;
+  z-index: 1;          /* above the PNG object */
+  text-align: center;
+  color: #222;
 }
 
-#portfolio2 {
-  background-image: url('/images/portfolio2.jpg');
+.drag-msg {
+  position: absolute;
+  top: 20%;
+  left: 5%;
+  font-size: 1.2rem;
+  color: #222;
+  z-index: 2;
+  transition: opacity 0.3s;
 }
 
-#portfolio3 {
-  background-image: url('/images/portfolio3.jpg');
+.center-msg {
+  position: absolute;
+  top: 40%;
+  left: 40%;
+  transform: translateX(-50%);
+  font-size: 1.5rem;
+  color: #222;
+  z-index: 2;
+  text-align: center;
+  transition: opacity 0.3s;
+}
+#intro h1 {
+    font-size: 2.5rem;      /* make it large */
+    font-weight: 700;
+    text-align: center;
+    color: #222;
+    margin-bottom: 1rem;
+    z-index: 1;             /* above any objects */
 }
 
-#portfolio4 {
-  background-image: url('/images/portfolio4.jpg');
+#intro p:not(.drag-msg):not(.center-msg) {
+    font-size: 1.8rem;      /* bigger subtext */
+    text-align: center;
+    color: #555;
+    margin-top: 0;
+    z-index: 1;
 }
