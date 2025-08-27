@@ -24,4 +24,20 @@ function slowScrollTo(targetY, duration = 1200) {
     requestAnimationFrame(step);
 }
 
+const content = document.querySelector('.content');
+const goTopBtn = document.getElementById('goTopBtn');
+
+goTopBtn?.addEventListener('click', function(e) {
+    e.preventDefault();
+    content.style.scrollSnapType = 'none';
+
+    content.scrollTo({ top: 0, behavior: "smooth" });
+
+    // Wait for scroll to actually finish
+    content.addEventListener('scrollend', function reenableSnap() {
+        content.style.scrollSnapType = 'y mandatory';
+        content.removeEventListener('scrollend', reenableSnap);
+    });
+});
+
 

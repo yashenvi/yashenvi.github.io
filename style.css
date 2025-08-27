@@ -1,27 +1,34 @@
-html, body {
-    height: 100%;
-    scroll-behavior: auto; /* We'll handle smoothness with JS */
-    overflow-x: hidden;
-}
-
-body {
+html {
     font-family: 'Poppins', sans-serif;
 }
 
+html, body {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Prevents outer (window) scrollbar */
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
 .top-bar {
+    height: 72px; /* Set to your actual header height */
+    min-height: 72px;
+    position: sticky; /* or fixed if you prefer */
+    top: 0;
+    z-index: 1000;
     width: 100%;
     box-sizing: border-box;
-    position: fixed;
-    top: 0;
-    left: 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 16px 16px;
     background: rgba(255,255,255,0.1);
     backdrop-filter: blur(8px);
-    z-index: 1000;
-    min-height: 7px;
 }
 
 .logo {
@@ -115,7 +122,7 @@ body {
     }
     .menu-btn {
         display: block;
-        margin-right: 16px;
+        margin-right: 0px;
     }
 }
 
@@ -181,21 +188,33 @@ body {
 }
 
 main {
-    /* Remove overflow-y and height here */
     scroll-snap-type: y mandatory;
-    scroll-padding-top: 100px; /* Adjust for header */
+    /*scroll-padding-top: 72px; /* for scroll snap */
+    /*padding-top: 100px;        /* for visual offset */
 }
 
 .page-section {
-    min-height: 100vh;
-    padding-top: 100px; /* adjust for your header */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-    scroll-snap-align: start;
+    
 }
+.page-section {
+  position: relative; /* ensures content sits above canvas */
+  z-index: 1;  
+  height: calc(100vh - 72px); /* subtract header height */
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;/* full viewport minus header */
+  scroll-snap-align: start;
+  padding: 0 2rem;
+  box-sizing: border-box;
+  color: #fff; /* default text color on image */
+  text-shadow: 0 0 5px rgba(0,0,0,0.5); /* optional for readability */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover; /* scales to cover whole section */
+}
+
 
 .portfolio-btn {
     display: inline-block;
@@ -215,9 +234,10 @@ main {
 }
 
 .back-home-link {
+    scroll-snap-align: center; /* or start margin: 64px auto;*/
     display: block;
     text-align: center;
-    margin: 32px auto 0 auto;
+     margin: 0 auto; /* instead of 32px */
     font-size: 0.95rem;
     color: #222;
     text-decoration: none;
@@ -232,8 +252,35 @@ main {
     width: fit-content;
 }
 
+
 .back-home-link:hover {
     background: none;
     color: #007bff;
     text-decoration: none;
+}
+
+.content {
+    scroll-snap-type: y mandatory;
+    overflow-y: auto;
+    height: 100vh;
+}
+
+#intro {
+  background-image: url('/images/intro.jpg');
+}
+
+#portfolio1 {
+  background-image: url('/images/portfolio1.jpg');
+}
+
+#portfolio2 {
+  background-image: url('/images/portfolio2.jpg');
+}
+
+#portfolio3 {
+  background-image: url('/images/portfolio3.jpg');
+}
+
+#portfolio4 {
+  background-image: url('/images/portfolio4.jpg');
 }
