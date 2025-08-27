@@ -322,3 +322,15 @@ main {
     margin-top: 0;
     z-index: 1;
 }
+
+.section-object {
+    user-select: none; /* prevents text/image selection */
+}
+
+@media (max-width: 700px) {
+    #intro .section-object,
+    #dragMsg,
+    #centerMsg {
+        display: none !important;
+    }
+}

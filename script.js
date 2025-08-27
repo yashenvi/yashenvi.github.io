@@ -72,6 +72,11 @@ let offsetX = 0;
 let offsetY = 0;
 const dragThreshold = 5; // pixels
 
+introImg.addEventListener('dragstart', (e) => {
+    e.preventDefault();
+});
+
+
 introImg.addEventListener('mousedown', (e) => {
     const rect = introImg.getBoundingClientRect();
 
