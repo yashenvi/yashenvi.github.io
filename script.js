@@ -42,12 +42,14 @@ goTopBtn?.addEventListener('click', function(e) {
 
 // On page load, set initial positions from data attributes
 document.querySelectorAll('.section-object').forEach(obj => {
+    if (obj.closest('#portfolio4')) return; // skip portfolio4
     const left = obj.dataset.left || '50%';
     const bottom = obj.dataset.bottom || '0%';
     obj.style.left = left;
     obj.style.bottom = bottom;
-    obj.style.transform = 'translateX(-50%)'; // optional, centers horizontally if left is percentage
+    obj.style.transform = 'translateX(-50%)';
 });
+
 
 // Subtle scroll movement
 window.addEventListener('scroll', () => {
@@ -162,3 +164,5 @@ window.addEventListener('mouseup', () => {
     dragStartX = null;
     dragStartY = null;
 });
+
+

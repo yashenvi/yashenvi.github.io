@@ -130,10 +130,10 @@ body {
     transform: translateX(50%); /* center adjustment */
     bottom: 0;        /* keep at bottom */
    }
-
    .section-content {
     padding: 0 1rem;
    }
+   
 }
 
 /* DESKTOP: Slide-left menu */
@@ -188,6 +188,13 @@ body {
     .page-section.align-left .menu-btn {
         align-self: flex-start;
     }
+    #portfolio4 .section-object {
+        width: 60%;          /* base width */
+        max-width: 70%;      /* max width */
+        left: 0;             /* align to left */
+        transform: none;     /* remove center transform */
+    }
+    
 }
 
 .right-bar {
