@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Yashenvi Portfolio</title>
+    <link href="https://fonts.googleapis.com/css?family=Poppins:400,500,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="top-bar">
+        <div class="logo">
+            YASHENVI ADMIN
+        </div>
+        <div class="right-bar">
+            <nav class="header-menu" id="headerMenu">
+                <a href="index.html">Back to Site</a>
+            </nav>
+            <button class="menu-btn" id="menuToggle" aria-label="Toggle menu">MENU</button>
+        </div>
+    </header>
+
+    <div id="password-view" class="admin-container">
+        <div class="password-form">
+            <h2>Admin Login</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Enter password">
+                </div>
+                <button type="submit" class="admin-btn">Login</button>
+                <div id="loginError" class="error-message" style="display: none;">Incorrect password. Please try again.</div>
+            </form>
+        </div>
+    </div>
+
+    <div id="dashboard-view" class="admin-container" style="display: none;">
+        <h1>Admin Dashboard</h1>
+        <div class="dashboard">
+            <a href="#" class="dashboard-btn" id="portfolios-btn">
+                <i class="fas fa-briefcase"></i>
+                <span>Manage Portfolios</span>
+            </a>
+            <a href="#" class="dashboard-btn" id="generate-btn">
+                <i class="fas fa-file-code"></i>
+                <span>Generate HTML</span>
+            </a>
+        </div>
+    </div>
+
+    <div id="portfolios-view" class="admin-container" style="display: none;">
+        <h1>Manage Portfolios</h1>
+        
+        <form id="portfolioForm">
+            <input type="hidden" id="portfolioId" value="">
+            <div class="form-group">
+                <label for="title">Portfolio Title</label>
+                <input type="text" id="title" name="title" required placeholder="e.g., Portfolio 5: Web Development">
+            </div>
+            
+            <div class="form-group">
+                <label for="subtitle">Portfolio Subtitle/Description</label>
+                <textarea id="subtitle" name="subtitle" required placeholder="Describe this portfolio section"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="image">Portfolio Image URL</label>
+                <input type="text" id="image" name="image" required placeholder="https://example.com/image.jpg">
+            </div>
+            
+            <div class="form-group">
+                <label for="content">Portfolio Content (HTML)</label>
+                <textarea id="content" name="content" rows="10" placeholder="Detailed content for the portfolio page"></textarea>
+            </div>
+            
+            <button type="submit" class="admin-btn" id="submit-btn">Add Portfolio</button>
+            <button type="button" class="admin-btn" id="cancel-btn" style="display: none; background: #6c757d;">Cancel</button>
+        </form>
+        
+        <div class="portfolio-list">
+            <h2>Existing Portfolios</h2>
+            <div id="portfolioList"></div>
+        </div>
+        
+        <a href="#" class="back-link" id="back-to-dashboard">← Back to Dashboard</a>
+    </div>
+
+    <div id="generate-view" class="admin-container" style="display: none;">
+        <h1>Generate HTML Files</h1>
+        <p>Click the button below to generate the updated HTML files.</p>
+        
+        <button id="generate-html-btn" class="admin-btn">Generate HTML Files</button>
+        
+        <div id="generate-status" style="margin-top: 20px;"></div>
+        
+        <a href="#" class="back-link" id="back-to-dashboard-2">← Back to Dashboard</a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('loginForm');
+            const portfolioForm = document.getElementById('portfolioForm');
+            const passwordView = document.getElementById('password-view');
+            const dashboardView = document.getElementById('dashboard-view');
+            const portfoliosView = document.getElementById('portfolios-view');
+            const generateView = document.getElementById('generate-view');
+            const loginError = document.getElementById('loginError');
+            const portfoliosBtn = document.getElementById('portfolios-btn');
+            const generateBtn = document.getElementById('generate-btn');
+            const backToDashboard = document.getElementById('back-to-dashboard');
+            const backToDashboard2 = document.getElementById('back-to-dashboard-2');
+            const submitBtn = document.getElementById('submit-btn');
+            const cancelBtn = document.getElementById('cancel-btn');
+            const portfolioIdInput = document.getElementById('portfolioId');
+            const generateHtmlBtn = document.getElementById('generate-html-btn');
+            const generateStatus = document.getElementById('generate-status');
+            
+            // Password protection
+            const ADMIN_PASSWORD = "Meanwhile1234@";
+            
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const password = document.getElementById('password').value;
+                
+                if (password === ADMIN_PASSWORD) {
+                    // Correct password, show dashboard
+                    passwordView.style.display = 'none';
+                    dashboardView.style.display = 'block';
+                    
+                    // Load existing portfolios
+                    loadPortfolios();
+                } else {
+                    // Incorrect password, show error
+                    loginError.style.display = 'block';
+                }
+            });
+            
+            // Navigate to portfolios view
+            portfoliosBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                dashboardView.style.display = 'none';
+                portfoliosView.style.display = 'block';
+                loadPortfolioList();
+            });
+            
+            // Navigate to generate view
+            generateBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                dashboardView.style.display = 'none';
+                generateView.style.display = 'block';
+            });
+            
+            // Back to dashboard
+            backToDashboard.addEventListener('click', function(e) {
+                e.preventDefault();
+                portfoliosView.style.display = 'none';
+                dashboardView.style.display = 'block';
+                resetForm();
+            });
+            
+            // Back to dashboard from generate view
+            backToDashboard2.addEventListener('click', function(e) {
+                e.preventDefault();
+                generateView.style.display = 'none';
+                dashboardView.style.display = 'block';
+            });
+            
+            // Cancel edit
+            cancelBtn.addEventListener('click', function() {
+                resetForm();
+            });
+            
+            // Handle form submission
+            portfolioForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const title = document.getElementById('title').value;
+                const subtitle = document.getElementById('subtitle').value;
+                const imageUrl = document.getElementById('image').value;
+                const content = document.getElementById('content').value;
+                const id = portfolioIdInput.value;
+                
+                if (!title || !subtitle || !imageUrl) {
+                    alert('Please fill in all required fields');
+                    return;
+                }
+                
+                const portfolioData = {
+                    title,
+                    subtitle,
+                    imageUrl,
+                    content
+                };
+                
+                if (id) {
+                    // Update existing portfolio
+                    updatePortfolio(id, portfolioData);
+                } else {
+                    // Add new portfolio
+                    savePortfolio(portfolioData);
+                }
+            });
+            
+            // Generate HTML files
+            generateHtmlBtn.addEventListener('click', function() {
+                generateStatus.textContent = 'Generating HTML files...';
+                
+                fetch('/api/generate-html', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        generateStatus.innerHTML = `
+                            <p style="color: green;">HTML files generated successfully!</p>
+                            <p>Download the files and replace them on your server:</p>
+                            <a href="/api/download-index" download="index.html" class="admin-btn">Download index.html</a>
+                        `;
+                    } else {
+                        generateStatus.innerHTML = `<p style="color: red;">Error generating HTML files: ${data.message}</p>`;
+                    }
+                })
+                .catch(error => {
+                    generateStatus.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+                });
+            });
+            
+            function loadPortfolios() {
+                fetch('/api/portfolios')
+                    .then(response => response.json())
+                    .then(portfolios => {
+                        localStorage.setItem('portfolios', JSON.stringify(portfolios));
+                    })
+                    .catch(error => {
+                        console.error('Error loading portfolios:', error);
+                    });
+            }
+            
+            function loadPortfolioList() {
+                const portfolioList = document.getElementById('portfolioList');
+                const portfolios = JSON.parse(localStorage.getItem('portfolios')) || [];
+                
+                portfolioList.innerHTML = '';
+                
+                if (portfolios.length === 0) {
+                    portfolioList.innerHTML = '<p>No portfolios found.</p>';
+                    return;
+                }
+                
+                portfolios.forEach((portfolio, index) => {
+                    const portfolioItem = document.createElement('div');
+                    portfolioItem.className = 'portfolio-item';
+                    
+                    portfolioItem.innerHTML = `
+                        <div>
+                            <h3>${portfolio.title}</h3>
+                            <p>${portfolio.subtitle}</p>
+                        </div>
+                        <div class="portfolio-actions">
+                            <button class="edit-btn" data-id="${portfolio.id}">Edit</button>
+                            <button class="view-btn" data-id="${portfolio.id}">View</button>
+                            <button class="delete-btn" data-id="${portfolio.id}">Delete</button>
+                        </div>
+                    `;
+                    
+                    portfolioList.appendChild(portfolioItem);
+                });
+                
+                // Add event listeners to edit and delete buttons
+                document.querySelectorAll('.edit-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = this.getAttribute('data-id');
+                        editPortfolio(id);
+                    });
+                });
+                
+                document.querySelectorAll('.view-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = this.getAttribute('data-id');
+                        window.open(`portfolios/portfolio-${id}.html`, '_blank');
+                    });
+                });
+                
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = this.getAttribute('data-id');
+                        if (confirm('Are you sure you want to delete this portfolio?')) {
+                            deletePortfolio(id);
+                        }
+                    });
+                });
+            }
+            
+            function editPortfolio(id) {
+                fetch(`/api/portfolio/${id}`)
+                    .then(response => response.json())
+                    .then(portfolio => {
+                        // Fill the form with portfolio data
+                        document.getElementById('title').value = portfolio.title;
+                        document.getElementById('subtitle').value = portfolio.subtitle;
+                        document.getElementById('image').value = portfolio.imageUrl;
+                        document.getElementById('content').value = portfolio.content || '';
+                        portfolioIdInput.value = portfolio.id;
+                        
+                        // Change button text and show cancel button
+                        submitBtn.textContent = 'Update Portfolio';
+                        cancelBtn.style.display = 'inline-block';
+                        
+                        // Scroll to form
+                        portfolioForm.scrollIntoView({ behavior: 'smooth' });
+                    })
+                    .catch(error => {
+                        console.error('Error loading portfolio:', error);
+                    });
+            }
+            
+            function resetForm() {
+                portfolioForm.reset();
+                portfolioIdInput.value = '';
+                submitBtn.textContent = 'Add Portfolio';
+                cancelBtn.style.display = 'none';
+            }
+            
+            function savePortfolio(portfolioData) {
+                fetch('/api/portfolios', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(portfolioData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Portfolio added successfully!');
+                        resetForm();
+                        loadPortfolios();
+                        loadPortfolioList();
+                    } else {
+                        alert('Error adding portfolio: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error saving portfolio:', error);
+                    alert('Error saving portfolio: ' + error.message);
+                });
+            }
+            
+            function updatePortfolio(id, portfolioData) {
+                fetch(`/api/portfolios/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(portfolioData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Portfolio updated successfully!');
+                        resetForm();
+                        loadPortfolios();
+                        loadPortfolioList();
+                    } else {
+                        alert('Error updating portfolio: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating portfolio:', error);
+                    alert('Error updating portfolio: ' + error.message);
+                });
+            }
+            
+            function deletePortfolio(id) {
+                fetch(`/api/portfolios/${id}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Portfolio deleted successfully!');
+                        loadPortfolios();
+                        loadPortfolioList();
+                    } else {
+                        alert('Error deleting portfolio: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting portfolio:', error);
+                    alert('Error deleting portfolio: ' + error.message);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

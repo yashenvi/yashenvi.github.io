@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{TITLE}} - Yashenvi Portfolio</title>
+    <link href="https://fonts.googleapis.com/css?family=Poppins:400,500,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header class="top-bar">
+        <div class="logo">
+            YASHENVI
+        </div>
+        <div class="right-bar">
+            <nav class="header-menu" id="headerMenu">
+                <a href="../index.html">Home</a>
+                <a href="../index.html#contact">Contact Me</a>
+                <a href="../index.html#product">Products</a>
+                <a href="../admin.html">Admin</a>
+            </nav>
+            <button class="menu-btn" id="menuToggle" aria-label="Toggle menu">MENU</button>
+        </div>
+    </header>
+
+    <main class="content">
+        <section class="page-section">
+            <img class="section-object" src="{{IMAGE_URL}}" alt="{{TITLE}}">
+            <div class="page-section-content">
+                <h1>{{TITLE}}</h1>
+                <p>{{SUBTITLE}}</p>
+                
+                <div class="portfolio-content">
+                    {{CONTENT}}
+                </div>
+                
+                <a href="../index.html" class="portfolio-btn">Back to Home</a>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Toggle mobile menu
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('headerMenu').classList.toggle('open');
+        });
+
+        // Close menu when clicking on a link
+        document.querySelectorAll('.header-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('headerMenu').classList.remove('open');
+            });
+        });
+
+        // Prevent zoom on double-tap (for mobile)
+        let lastTap = 0;
+        document.addEventListener('touchend', function(event) {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+            if (tapLength < 300 && tapLength > 0) {
+                event.preventDefault();
+            }
+            lastTap = currentTime;
+        });
+
+        // Disable pinch zoom
+        document.addEventListener('wheel', function(event) {
+            if (event.ctrlKey) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+    </script>
+</body>
+</html>
