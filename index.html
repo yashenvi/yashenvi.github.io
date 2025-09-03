@@ -3,61 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Yashenvi Portfolio</title>
     <link href="https://fonts.googleapis.com/css?family=Poppins:400,500,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="top-bar">
-    <div class="logo">
-        YASHENVI
-    </div>
-    <div class="right-bar">
-        <nav class="header-menu" id="headerMenu">
-            <a href="index.html#intro">Home</a>
-            <a href="contact.html">Contact Me</a>
-            <a href="product.html">Products</a>
-            <!-- Add more links here in the future -->
-        </nav>
-        <button class="menu-btn header-menu-btn" id="menuToggle" aria-label="Toggle menu">MENU</button>
-    </div>
-  </header>
-  <main class="content">
+        <div class="logo">
+            YASHENVI
+        </div>
+        <div class="right-bar">
+            <nav class="header-menu" id="headerMenu">
+                <a href="#intro">Home</a>
+                <a href="#contact">Contact Me</a>
+                <a href="#product">Products</a>
+            </nav>
+            <button class="menu-btn" id="menuToggle" aria-label="Toggle menu">MENU</button>
+        </div>
+    </header>
 
-    <section id="intro" class="page-section align-right">
-        <img class="section-object" src="/images/object0.png" alt="Intro object" data-left="50%" data-bottom="0%" draggable="false">
-        <p class="drag-msg" id="dragMsg">Oops! I’m not in the right spot.<br>Drag me all the way to left to begin!</p>
-        <p class="center-msg" id="centerMsg" style="display:none;">Explore more of me below</p>
-        <h1>Hi, I'm Yash Shenvi</h1>
-        <p>Welcome to my portfolio!</p>
-    </section>
-    <section id="portfolio1" class="page-section align-left">
-        <img class="section-object" src="/images/object1.png" alt="portfolio1 object">
-        <h1>Portfolio 1: Editor / Graphic Designer</h1>
-        <p>Showcasing my work as an editor and graphic designer.</p>
-        <a href="portfolio1.html" class="menu-btn">View Portfolio</a>
-    </section>
-    <section id="portfolio2" class="page-section align-right">
-        <img class="section-object" src="/images/object2.png" alt="portfolio2 object">
-        <h1>Portfolio 2: Teacher</h1>
-        <p>My journey and resources as a teacher.</p>
-        <a href="portfolio2.html" class="menu-btn">View Portfolio</a>
-    </section>
-    <section id="portfolio3" class="page-section align-left">
-        <img class="section-object" src="/images/object3.png" alt="portfolio3 object">
-        <h1>Portfolio 3: Gaming & YouTube</h1>
-        <p>My gaming highlights and YouTube content.</p>
-        <a href="portfolio3.html" class="menu-btn">View Portfolio</a>
-    </section>
-    <section id="portfolio4" class="page-section align-right">
-        <img class="section-object" src="/images/object4.png" alt="portfolio4 object">
-        <h1>Portfolio 4: Electronics & Robotics</h1>
-        <p>Projects in electronics, robotics, and items for sale.</p>
-        <a href="portfolio4.html" class="menu-btn">View Portfolio</a>
-    </section>
-    <a href="#" class="back-home-link" id="goTopBtn">Back to Top</a>
-  </main>
+    <div class="scroll-to-top" id="scrollToTop">
+        Scroll again to return to top
+    </div>
+
+    <main class="content">
+        <section id="intro" class="page-section intro-section">
+            <div class="intro-image">
+                <img src="/images/my-photo.jpg" alt="My photo">
+            </div>
+            <div class="intro-text">
+                <h1>Hi, I'm Yash Shenvi</h1>
+                <p>Welcome to my portfolio!</p>
+            </div>
+        </section>
+
+        <section id="portfolio1" class="page-section align-left">
+            <img class="section-object" src="/images/object1.png" alt="portfolio1 object">
+            <div class="page-section-content">
+                <h1>Portfolio 1: Editor / Graphic Designer</h1>
+                <p>Showcasing my work as an editor and graphic designer.</p>
+                <a href="portfolio1.html" class="portfolio-btn">View Portfolio</a>
+            </div>
+        </section>
+
+        <section id="portfolio2" class="page-section align-right">
+            <img class="section-object" src="https://placehold.co/400x300" alt="portfolio2 object">
+            <div class="page-section-content">
+                <h1>Portfolio 2: Teacher</h1>
+                <p>My journey and resources as a teacher.</p>
+                <a href="portfolio2.html" class="portfolio-btn">View Portfolio</a>
+            </div>
+        </section>
+
+        <section id="portfolio3" class="page-section align-left">
+            <img class="section-object" src="https://placehold.co/400x300" alt="portfolio3 object">
+            <div class="page-section-content">
+                <h1>Portfolio 3: Gaming & YouTube</h1>
+                <p>My gaming highlights and YouTube content.</p>
+                <a href="portfolio3.html" class="portfolio-btn">View Portfolio</a>
+            </div>
+        </section>
+
+        <section id="portfolio4" class="page-section align-right">
+            <img class="section-object" src="/images/object4.png" alt="portfolio4 object">
+            <div class="page-section-content">
+                <h1>Portfolio 4: Electronics & Robotics</h1>
+                <p>Projects in electronics, robotics, and items for sale.</p>
+                <a href="portfolio4.html" class="portfolio-btn">View Portfolio</a>
+            </div>
+            <div class="end-marker" id="endMarker"></div>
+        </section>
+
+    </main>
   <script src="script.js"></script>
 </body>
 </html>
