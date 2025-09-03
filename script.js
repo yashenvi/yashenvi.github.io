@@ -1,3 +1,21 @@
+// =============================================
+// ADMIN LINK CONFIGURATION
+// Set SHOW_ADMIN_LINK to true to show the admin link in the header
+// Set to false to hide it completely
+// =============================================
+const SHOW_ADMIN_LINK = false; // Change this to false to hide the admin link
+// =============================================
+
+// Rest of your script.js code remains the same...
+
+// =============================================
+// CONFIGURATION SETTINGS
+// =============================================
+const CONFIG = {
+    SHOW_ADMIN_LINK: false // Set to false to hide the admin link from the header
+};
+// =============================================
+
 // Toggle mobile menu
 document.getElementById('menuToggle').addEventListener('click', function() {
     document.getElementById('headerMenu').classList.toggle('open');
@@ -9,6 +27,7 @@ document.querySelectorAll('.header-menu a').forEach(link => {
         document.getElementById('headerMenu').classList.remove('open');
     });
 });
+
 
 // Smooth scrolling for navigation links
 document.querySelectorAll('.header-menu a[href^="#"]').forEach(anchor => {
