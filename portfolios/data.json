@@ -1,11 +1,11 @@
 [
   {
-    "title": "Robotics & My Products",
-    "subtitle": "Come check out my projects",
+    "title": "h",
+    "subtitle": "h",
     "imageUrl": "/images/object1.png",
-    "content": "        <section id=\"intro\" class=\"page-section intro-section\">\n            <div class=\"intro-image\">\n                <img src=\"/images/my-photo.jpg\" alt=\"My photo\">\n            </div>\n            <div class=\"intro-text\">\n                <h1>Hi, I'm Yash Shenvi</h1>\n                <p>Welcome to my portfolio!</p>\n                <div class=\"social-icons\">\n                    <a href=\"#\" class=\"social-icon\"><i class=\"fab fa-instagram\"></i></a>\n                    <a href=\"#\" class=\"social-icon\"><i class=\"fab fa-youtube\"></i></a>\n                    <a href=\"#\" class=\"social-icon\"><i class=\"fab fa-linkedin\"></i></a>\n                    <a href=\"#\" class=\"social-icon\"><i class=\"fab fa-discord\"></i></a>\n                </div>\n            </div>\n        </section>",
-    "id": "1757003763914",
-    "createdAt": "2025-09-04T16:36:03.914Z",
-    "updatedAt": "2025-09-04T16:43:21.045Z"
+    "content": "",
+    "id": "1757013071967",
+    "createdAt": "2025-09-04T19:11:11.967Z",
+    "updatedAt": "2025-09-04T19:11:11.967Z"
   }
 ]

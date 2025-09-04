@@ -6,9 +6,8 @@ const bodyParser = require('body-parser');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+// Middleware - Body parser first
 app.use(bodyParser.json({ limit: '50mb' }));
-app.use(express.static('.')); // Serve static files from the current directory
 
 // File paths
 const PORTFOLIOS_DIR = 'portfolios';
@@ -41,7 +40,7 @@ function savePortfoliosToFile() {
     }
 }
 
-// Add this after the portfolios array declaration in server.js
+// Items data file
 const ITEMS_DATA_FILE = path.join(PORTFOLIOS_DIR, 'items.json');
 let items = [];
 
@@ -66,8 +65,7 @@ function saveItemsToFile() {
     }
 }
 
-
-// API Routes
+// API Routes - Define these BEFORE static file serving
 app.get('/api/portfolios', (req, res) => {
     res.json(portfolios);
 });
@@ -75,14 +73,13 @@ app.get('/api/portfolios', (req, res) => {
 app.post('/api/portfolios', (req, res) => {
     try {
         const portfolio = req.body;
-        portfolio.id = Date.now().toString(); // Generate unique ID
+        portfolio.id = Date.now().toString();
         portfolio.createdAt = new Date().toISOString();
         portfolio.updatedAt = new Date().toISOString();
         
         portfolios.push(portfolio);
         savePortfoliosToFile();
         
-        // Generate the portfolio page
         generatePortfolioPage(portfolio);
         
         res.json({ success: true, message: 'Portfolio added successfully', id: portfolio.id });
@@ -99,12 +96,10 @@ app.put('/api/portfolios/:id', (req, res) => {
         
         const index = portfolios.findIndex(p => p.id === id);
         if (index !== -1) {
-            // Preserve created date
             updatedPortfolio.createdAt = portfolios[index].createdAt;
             portfolios[index] = { ...portfolios[index], ...updatedPortfolio };
             savePortfoliosToFile();
             
-            // Regenerate the portfolio page
             generatePortfolioPage(portfolios[index]);
             
             res.json({ success: true, message: 'Portfolio updated successfully' });
@@ -122,7 +117,6 @@ app.delete('/api/portfolios/:id', (req, res) => {
         
         const index = portfolios.findIndex(p => p.id === id);
         if (index !== -1) {
-            // Remove the portfolio HTML file
             const portfolioFile = `portfolios/portfolio-${id}.html`;
             if (fs.existsSync(portfolioFile)) {
                 fs.unlinkSync(portfolioFile);
@@ -153,8 +147,6 @@ app.get('/api/portfolio/:id', (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 });
-
-// Add these API routes after the portfolio routes in server.js
 
 // Items API routes
 app.get('/api/portfolios/:portfolioId/items', (req, res) => {
@@ -221,7 +213,46 @@ app.delete('/api/items/:id', (req, res) => {
     }
 });
 
-// Function to generate header HTML (without admin link)
+// HTML Generation API
+app.post('/api/generate-html', (req, res) => {
+    try {
+        let indexHtml = fs.readFileSync('index-template.html', 'utf8');
+        
+        const headerHtml = generateHeaderHtml();
+        
+        let portfolioSections = '';
+        portfolios.forEach((portfolio) => {
+            portfolioSections += `
+                <section id="portfolio-${portfolio.id}" class="page-section align-left">
+                    <img class="section-object" src="${portfolio.imageUrl}" alt="${portfolio.title}">
+                    <div class="page-section-content">
+                        <h1>${portfolio.title}</h1>
+                        <p>${portfolio.subtitle}</p>
+                        <a href="portfolios/portfolio-${portfolio.id}.html" class="portfolio-btn">View Portfolio</a>
+                    </div>
+                </section>
+            `;
+        });
+        
+        indexHtml = indexHtml
+            .replace('<!-- HEADER -->', headerHtml)
+            .replace('<!-- PORTFOLIO_SECTIONS -->', portfolioSections);
+        
+        fs.writeFileSync('index.html', indexHtml);
+        
+        portfolios.forEach(generatePortfolioPage);
+        
+        res.json({ success: true, message: 'HTML files generated successfully' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+app.get('/api/download-index', (req, res) => {
+    res.download('index.html');
+});
+
+// Helper functions
 function generateHeaderHtml() {
     return `
         <header class="top-bar">
@@ -240,16 +271,12 @@ function generateHeaderHtml() {
     `;
 }
 
-// Generate individual portfolio page
 function generatePortfolioPage(portfolio) {
     try {
-        // Read the portfolio template
         let portfolioHtml = fs.readFileSync('portfolio-template.html', 'utf8');
         
-        // Generate header
         const headerHtml = generateHeaderHtml();
         
-        // Replace placeholders with actual content
         portfolioHtml = portfolioHtml
             .replace('<!-- HEADER -->', headerHtml)
             .replace(/{{TITLE}}/g, portfolio.title)
@@ -258,7 +285,6 @@ function generatePortfolioPage(portfolio) {
             .replace(/{{CONTENT}}/g, portfolio.content || '')
             .replace(/{{ID}}/g, portfolio.id);
         
-        // Write the portfolio HTML file
         fs.writeFileSync(`portfolios/portfolio-${portfolio.id}.html`, portfolioHtml);
         
         console.log(`Generated portfolio page: portfolios/portfolio-${portfolio.id}.html`);
@@ -267,49 +293,12 @@ function generatePortfolioPage(portfolio) {
     }
 }
 
-// Generate main index.html
-app.post('/api/generate-html', (req, res) => {
-    try {
-        // Read the template for index.html
-        let indexHtml = fs.readFileSync('index-template.html', 'utf8');
-        
-        // Generate header
-        const headerHtml = generateHeaderHtml();
-        
-        // Generate portfolio sections HTML
-        let portfolioSections = '';
-        portfolios.forEach((portfolio, index) => {
-            portfolioSections += `
-                <section id="portfolio-${portfolio.id}" class="page-section align-left">
-                    <img class="section-object" src="${portfolio.imageUrl}" alt="${portfolio.title}">
-                    <div class="page-section-content">
-                        <h1>${portfolio.title}</h1>
-                        <p>${portfolio.subtitle}</p>
-                        <a href="portfolios/portfolio-${portfolio.id}.html" class="portfolio-btn">View Portfolio</a>
-                    </div>
-                </section>
-            `;
-        });
-        
-        // Replace the placeholders with actual content
-        indexHtml = indexHtml
-            .replace('<!-- HEADER -->', headerHtml)
-            .replace('<!-- PORTFOLIO_SECTIONS -->', portfolioSections);
-        
-        // Write the updated index.html
-        fs.writeFileSync('index.html', indexHtml);
-        
-        // Generate all portfolio pages
-        portfolios.forEach(generatePortfolioPage);
-        
-        res.json({ success: true, message: 'HTML files generated successfully' });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-});
+// Static file serving - This should come AFTER API routes
+app.use(express.static('.'));
 
-app.get('/api/download-index', (req, res) => {
-    res.download('index.html');
+// Add a catch-all handler for undefined API routes
+app.use('/api/*', (req, res) => {
+    res.status(404).json({ success: false, message: 'API endpoint not found' });
 });
 
 // Start server
@@ -317,7 +306,6 @@ app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
     console.log(`Admin interface available at http://localhost:${PORT}/admin.html`);
     
-    // Generate all portfolio pages on server start
     portfolios.forEach(portfolio => {
         if (!fs.existsSync(`portfolios/portfolio-${portfolio.id}.html`)) {
             generatePortfolioPage(portfolio);

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>h - Yashenvi Portfolio</title>
+    <link href="https://fonts.googleapis.com/css?family=Poppins:400,500,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    
+        <header class="top-bar">
+            <div class="logo">
+                YASHENVI
+            </div>
+            <div class="right-bar">
+                <nav class="header-menu" id="headerMenu">
+                    <a href="#intro">Home</a>
+                    <a href="#contact">Contact Me</a>
+                    <a href="#product">Products</a>
+                </nav>
+                <button class="menu-btn" id="menuToggle" aria-label="Toggle menu">MENU</button>
+            </div>
+        </header>
+    
+
+    <main class="content">
+        <section class="page-section">
+            <img class="section-object" src="/images/object1.png" alt="h">
+            <div class="page-section-content">
+                <h1>h</h1>
+                <p>h</p>
+                
+                <div class="portfolio-content">
+                    
+                </div>
+                
+                <!-- Items section -->
+                <div class="items-section">
+                    <h2>Projects</h2>
+                    
+                    <div class="items-controls">
+                        <input type="text" id="items-search" placeholder="Search projects...">
+                        <select id="items-filter">
+                            <option value="">All Sources</option>
+                            <!-- Sources will be populated dynamically -->
+                        </select>
+                    </div>
+                    
+                    <div class="items-grid" id="items-container">
+                        <!-- Items will be populated dynamically -->
+                    </div>
+                </div>
+                
+                <a href="../index.html" class="portfolio-btn">Back to Home</a>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Toggle mobile menu
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('headerMenu').classList.toggle('open');
+        });
+
+        // Close menu when clicking on a link
+        document.querySelectorAll('.header-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('headerMenu').classList.remove('open');
+            });
+        });
+
+        // Prevent zoom on double-tap (for mobile)
+        let lastTap = 0;
+        document.addEventListener('touchend', function(event) {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+            if (tapLength < 300 && tapLength > 0) {
+                event.preventDefault();
+            }
+            lastTap = currentTime;
+        });
+
+        // Disable pinch zoom
+        document.addEventListener('wheel', function(event) {
+            if (event.ctrlKey) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+
+        // Load items for this portfolio
+        document.addEventListener('DOMContentLoaded', function() {
+            const portfolioId = '1757013071967';
+            const itemsContainer = document.getElementById('items-container');
+            const searchInput = document.getElementById('items-search');
+            const filterSelect = document.getElementById('items-filter');
+            
+            // Show loading message
+            itemsContainer.innerHTML = '<p>Loading projects...</p>';
+
+            fetch(`/api/portfolios/${portfolioId}/items`)
+                .then(response => response.json())
+                .then(items => {
+                    if (items.length === 0) {
+                        itemsContainer.innerHTML = '<p>No projects found.</p>';
+                        return;
+                    }
+                    
+                    // Get unique sources for filter
+                    const sources = [...new Set(items.map(item => item.source))];
+                    sources.forEach(source => {
+                        const option = document.createElement('option');
+                        option.value = source;
+                        option.textContent = source;
+                        filterSelect.appendChild(option);
+                    });
+                    
+                    renderItems(items);
+                    
+                    // Add event listeners for search and filter
+                    searchInput.addEventListener('input', function() {
+                        filterItems();
+                    });
+                    
+                    filterSelect.addEventListener('change', function() {
+                        filterItems();
+                    });
+                    
+                    function filterItems() {
+                        const searchTerm = searchInput.value.toLowerCase();
+                        const sourceFilter = filterSelect.value;
+                        
+                        const filteredItems = items.filter(item => {
+                            const matchesSearch = item.title.toLowerCase().includes(searchTerm) || 
+                                                (item.description && item.description.toLowerCase().includes(searchTerm));
+                            const matchesFilter = !sourceFilter || item.source === sourceFilter;
+                            
+                            return matchesSearch && matchesFilter;
+                        });
+                        
+                        renderItems(filteredItems);
+                    }
+                    
+                    function renderItems(itemsToRender) {
+                        itemsContainer.innerHTML = '';
+                        
+                        if (itemsToRender.length === 0) {
+                            itemsContainer.innerHTML = '<p>No projects match your search criteria.</p>';
+                            return;
+                        }
+                        
+                        itemsToRender.forEach(item => {
+                            const itemElement = document.createElement('div');
+                            itemElement.className = 'item-card';
+                            itemElement.innerHTML = `
+                                <div class="item-image">
+                                    <img src="${item.imageUrl}" alt="${item.title}">
+                                </div>
+                                <div class="item-content">
+                                    <h3>${item.title}</h3>
+                                    <p class="item-source">${item.source}</p>
+                                    <p class="item-description">${item.description || ''}</p>
+                                    <a href="${item.projectUrl}" target="_blank" class="item-btn">View Project</a>
+                                </div>
+                            `;
+                            itemsContainer.appendChild(itemElement);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading items:', error);
+                    itemsContainer.innerHTML = '<p>Error loading projects. Please try again later.</p>';
+                });
+        });
+    </script>
+</body>
+</html>
