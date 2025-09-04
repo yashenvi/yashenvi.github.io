@@ -22,6 +22,23 @@
                     {{CONTENT}}
                 </div>
                 
+                <!-- Items section -->
+                <div class="items-section">
+                    <h2>Projects</h2>
+                    
+                    <div class="items-controls">
+                        <input type="text" id="items-search" placeholder="Search projects...">
+                        <select id="items-filter">
+                            <option value="">All Sources</option>
+                            <!-- Sources will be populated dynamically -->
+                        </select>
+                    </div>
+                    
+                    <div class="items-grid" id="items-container">
+                        <!-- Items will be populated dynamically -->
+                    </div>
+                </div>
+                
                 <a href="../index.html" class="portfolio-btn">Back to Home</a>
             </div>
         </section>
@@ -57,6 +74,91 @@
                 event.preventDefault();
             }
         }, { passive: false });
+
+        // Load items for this portfolio
+        document.addEventListener('DOMContentLoaded', function() {
+            const portfolioId = '{{ID}}';
+            const itemsContainer = document.getElementById('items-container');
+            const searchInput = document.getElementById('items-search');
+            const filterSelect = document.getElementById('items-filter');
+            
+            // Show loading message
+            itemsContainer.innerHTML = '<p>Loading projects...</p>';
+
+            fetch(`/api/portfolios/${portfolioId}/items`)
+                .then(response => response.json())
+                .then(items => {
+                    if (items.length === 0) {
+                        itemsContainer.innerHTML = '<p>No projects found.</p>';
+                        return;
+                    }
+                    
+                    // Get unique sources for filter
+                    const sources = [...new Set(items.map(item => item.source))];
+                    sources.forEach(source => {
+                        const option = document.createElement('option');
+                        option.value = source;
+                        option.textContent = source;
+                        filterSelect.appendChild(option);
+                    });
+                    
+                    renderItems(items);
+                    
+                    // Add event listeners for search and filter
+                    searchInput.addEventListener('input', function() {
+                        filterItems();
+                    });
+                    
+                    filterSelect.addEventListener('change', function() {
+                        filterItems();
+                    });
+                    
+                    function filterItems() {
+                        const searchTerm = searchInput.value.toLowerCase();
+                        const sourceFilter = filterSelect.value;
+                        
+                        const filteredItems = items.filter(item => {
+                            const matchesSearch = item.title.toLowerCase().includes(searchTerm) || 
+                                                (item.description && item.description.toLowerCase().includes(searchTerm));
+                            const matchesFilter = !sourceFilter || item.source === sourceFilter;
+                            
+                            return matchesSearch && matchesFilter;
+                        });
+                        
+                        renderItems(filteredItems);
+                    }
+                    
+                    function renderItems(itemsToRender) {
+                        itemsContainer.innerHTML = '';
+                        
+                        if (itemsToRender.length === 0) {
+                            itemsContainer.innerHTML = '<p>No projects match your search criteria.</p>';
+                            return;
+                        }
+                        
+                        itemsToRender.forEach(item => {
+                            const itemElement = document.createElement('div');
+                            itemElement.className = 'item-card';
+                            itemElement.innerHTML = `
+                                <div class="item-image">
+                                    <img src="${item.imageUrl}" alt="${item.title}">
+                                </div>
+                                <div class="item-content">
+                                    <h3>${item.title}</h3>
+                                    <p class="item-source">${item.source}</p>
+                                    <p class="item-description">${item.description || ''}</p>
+                                    <a href="${item.projectUrl}" target="_blank" class="item-btn">View Project</a>
+                                </div>
+                            `;
+                            itemsContainer.appendChild(itemElement);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading items:', error);
+                    itemsContainer.innerHTML = '<p>Error loading projects. Please try again later.</p>';
+                });
+        });
     </script>
 </body>
 </html>

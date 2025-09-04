@@ -1,21 +1,3 @@
-// =============================================
-// ADMIN LINK CONFIGURATION
-// Set SHOW_ADMIN_LINK to true to show the admin link in the header
-// Set to false to hide it completely
-// =============================================
-const SHOW_ADMIN_LINK = false; // Change this to false to hide the admin link
-// =============================================
-
-// Rest of your script.js code remains the same...
-
-// =============================================
-// CONFIGURATION SETTINGS
-// =============================================
-const CONFIG = {
-    SHOW_ADMIN_LINK: false // Set to false to hide the admin link from the header
-};
-// =============================================
-
 // Toggle mobile menu
 document.getElementById('menuToggle').addEventListener('click', function() {
     document.getElementById('headerMenu').classList.toggle('open');
@@ -27,7 +9,6 @@ document.querySelectorAll('.header-menu a').forEach(link => {
         document.getElementById('headerMenu').classList.remove('open');
     });
 });
-
 
 // Smooth scrolling for navigation links
 document.querySelectorAll('.header-menu a[href^="#"]').forEach(anchor => {
@@ -78,11 +59,14 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(portfolios => {
             const portfolioContainer = document.getElementById('portfolio-container');
+            // Check if portfolio container exists
+            if (!portfolioContainer) return;
+            
             portfolioContainer.innerHTML = '';
             
-            portfolios.forEach((portfolio, index) => {
+            portfolios.forEach((portfolio) => {
                 const section = document.createElement('section');
-                section.id = `portfolio-${index + 1}`;
+                section.id = `portfolio-${portfolio.id}`;
                 section.className = 'page-section align-left';
                 
                 section.innerHTML = `
@@ -90,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="page-section-content">
                         <h1>${portfolio.title}</h1>
                         <p>${portfolio.subtitle}</p>
-                        <a href="${portfolio.link}" class="portfolio-btn">View Portfolio</a>
+                        <a href="portfolios/portfolio-${portfolio.id}.html" class="portfolio-btn">View Portfolio</a>
                     </div>
                 `;
                 

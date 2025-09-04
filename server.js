@@ -1,13 +1,3 @@
-// =============================================
-// ADMIN LINK CONFIGURATION
-// Set SHOW_ADMIN_LINK to true to show the admin link in generated HTML
-// Set to false to hide it completely
-// =============================================
-const SHOW_ADMIN_LINK = true; // Change this to false to hide the admin link
-// =============================================
-
-// Rest of your server.js code...
-
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -50,6 +40,32 @@ function savePortfoliosToFile() {
         console.error('Error saving portfolios to file:', error);
     }
 }
+
+// Add this after the portfolios array declaration in server.js
+const ITEMS_DATA_FILE = path.join(PORTFOLIOS_DIR, 'items.json');
+let items = [];
+
+// Load items from file if it exists
+try {
+    if (fs.existsSync(ITEMS_DATA_FILE)) {
+        const data = fs.readFileSync(ITEMS_DATA_FILE, 'utf8');
+        items = JSON.parse(data);
+        console.log(`Loaded ${items.length} items from file`);
+    }
+} catch (err) {
+    console.error('Error loading items file:', err);
+}
+
+// Save items to file
+function saveItemsToFile() {
+    try {
+        fs.writeFileSync(ITEMS_DATA_FILE, JSON.stringify(items, null, 2));
+        console.log('Items saved to file');
+    } catch (error) {
+        console.error('Error saving items to file:', error);
+    }
+}
+
 
 // API Routes
 app.get('/api/portfolios', (req, res) => {
@@ -138,15 +154,75 @@ app.get('/api/portfolio/:id', (req, res) => {
     }
 });
 
-// Function to generate header HTML with optional admin link
-// Function to generate header HTML with optional admin link
-function generateHeaderHtml() {
-    let adminLink = '';
-    
-    if (SHOW_ADMIN_LINK) {
-        adminLink = '<a href="admin.html">Admin</a>';
+// Add these API routes after the portfolio routes in server.js
+
+// Items API routes
+app.get('/api/portfolios/:portfolioId/items', (req, res) => {
+    try {
+        const portfolioId = req.params.portfolioId;
+        const portfolioItems = items.filter(item => item.portfolioId === portfolioId);
+        res.json(portfolioItems);
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
-    
+});
+
+app.post('/api/items', (req, res) => {
+    try {
+        const item = req.body;
+        item.id = Date.now().toString();
+        item.createdAt = new Date().toISOString();
+        item.updatedAt = new Date().toISOString();
+        
+        items.push(item);
+        saveItemsToFile();
+        
+        res.json({ success: true, message: 'Item added successfully', id: item.id });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+app.put('/api/items/:id', (req, res) => {
+    try {
+        const id = req.params.id;
+        const updatedItem = req.body;
+        updatedItem.updatedAt = new Date().toISOString();
+        
+        const index = items.findIndex(i => i.id === id);
+        if (index !== -1) {
+            updatedItem.createdAt = items[index].createdAt;
+            items[index] = { ...items[index], ...updatedItem };
+            saveItemsToFile();
+            
+            res.json({ success: true, message: 'Item updated successfully' });
+        } else {
+            res.status(404).json({ success: false, message: 'Item not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+app.delete('/api/items/:id', (req, res) => {
+    try {
+        const id = req.params.id;
+        
+        const index = items.findIndex(i => i.id === id);
+        if (index !== -1) {
+            items.splice(index, 1);
+            saveItemsToFile();
+            res.json({ success: true, message: 'Item deleted successfully' });
+        } else {
+            res.status(404).json({ success: false, message: 'Item not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// Function to generate header HTML (without admin link)
+function generateHeaderHtml() {
     return `
         <header class="top-bar">
             <div class="logo">
@@ -157,12 +233,38 @@ function generateHeaderHtml() {
                     <a href="#intro">Home</a>
                     <a href="#contact">Contact Me</a>
                     <a href="#product">Products</a>
-                    ${adminLink}
                 </nav>
                 <button class="menu-btn" id="menuToggle" aria-label="Toggle menu">MENU</button>
             </div>
         </header>
     `;
+}
+
+// Generate individual portfolio page
+function generatePortfolioPage(portfolio) {
+    try {
+        // Read the portfolio template
+        let portfolioHtml = fs.readFileSync('portfolio-template.html', 'utf8');
+        
+        // Generate header
+        const headerHtml = generateHeaderHtml();
+        
+        // Replace placeholders with actual content
+        portfolioHtml = portfolioHtml
+            .replace('<!-- HEADER -->', headerHtml)
+            .replace(/{{TITLE}}/g, portfolio.title)
+            .replace(/{{SUBTITLE}}/g, portfolio.subtitle)
+            .replace(/{{IMAGE_URL}}/g, portfolio.imageUrl)
+            .replace(/{{CONTENT}}/g, portfolio.content || '')
+            .replace(/{{ID}}/g, portfolio.id);
+        
+        // Write the portfolio HTML file
+        fs.writeFileSync(`portfolios/portfolio-${portfolio.id}.html`, portfolioHtml);
+        
+        console.log(`Generated portfolio page: portfolios/portfolio-${portfolio.id}.html`);
+    } catch (error) {
+        console.error('Error generating portfolio page:', error);
+    }
 }
 
 // Generate main index.html
@@ -171,8 +273,8 @@ app.post('/api/generate-html', (req, res) => {
         // Read the template for index.html
         let indexHtml = fs.readFileSync('index-template.html', 'utf8');
         
-        // Generate header with optional admin link
-        const headerHtml = generateHeaderHtml(true); // Set to false to hide admin link
+        // Generate header
+        const headerHtml = generateHeaderHtml();
         
         // Generate portfolio sections HTML
         let portfolioSections = '';
@@ -198,42 +300,13 @@ app.post('/api/generate-html', (req, res) => {
         fs.writeFileSync('index.html', indexHtml);
         
         // Generate all portfolio pages
-        portfolios.forEach(portfolio => {
-            generatePortfolioPage(portfolio, true); // Pass true to include admin link
-        });
+        portfolios.forEach(generatePortfolioPage);
         
         res.json({ success: true, message: 'HTML files generated successfully' });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 });
-
-// Update the generatePortfolioPage function
-function generatePortfolioPage(portfolio, includeAdminLink) {
-    try {
-        // Read the portfolio template
-        let portfolioHtml = fs.readFileSync('portfolio-template.html', 'utf8');
-        
-        // Generate header with optional admin link
-        const headerHtml = generateHeaderHtml(includeAdminLink);
-        
-        // Replace placeholders with actual content
-        portfolioHtml = portfolioHtml
-            .replace('<!-- HEADER -->', headerHtml)
-            .replace(/{{TITLE}}/g, portfolio.title)
-            .replace(/{{SUBTITLE}}/g, portfolio.subtitle)
-            .replace(/{{IMAGE_URL}}/g, portfolio.imageUrl)
-            .replace(/{{CONTENT}}/g, portfolio.content || '')
-            .replace(/{{ID}}/g, portfolio.id);
-        
-        // Write the portfolio HTML file
-        fs.writeFileSync(`portfolios/portfolio-${portfolio.id}.html`, portfolioHtml);
-        
-        console.log(`Generated portfolio page: portfolios/portfolio-${portfolio.id}.html`);
-    } catch (error) {
-        console.error('Error generating portfolio page:', error);
-    }
-}
 
 app.get('/api/download-index', (req, res) => {
     res.download('index.html');
@@ -251,4 +324,3 @@ app.listen(PORT, () => {
         }
     });
 });
-
